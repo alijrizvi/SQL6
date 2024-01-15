@@ -1,0 +1,106 @@
+-- Pulling Up the Dataset
+
+SELECT *
+FROM aerial-prism-392004.Google_Capstone_Project.performance_by_personality;
+
+-- Checking to Confirm if We Have All 16 Myers-Briggs Personality Types or Not
+
+SELECT DISTINCT Type
+FROM aerial-prism-392004.Google_Capstone_Project.performance_by_personality; -- Yes, we did!
+
+-- Checking to See Sample Size of Each Personality Type (At least "1" Should be the Value of Each - Which is Unacceptable in Real-Life but this is an Experimental Personal Project, So Yeah lol)
+
+SELECT Type, COUNT(*)
+FROM aerial-prism-392004.Google_Capstone_Project.performance_by_personality
+GROUP BY Type
+HAVING Count(*) >= 1
+
+-- Checking the Data Sorted by Personality Type
+
+SELECT *
+FROM aerial-prism-392004.Google_Capstone_Project.performance_by_personality
+ORDER BY Type
+
+-- Grouping Each Personality Type With its Average Productivity Score
+
+SELECT Type AS Personality_Type, ROUND(AVG(Output_Score), 2) AS Average_Productivity_Level
+FROM aerial-prism-392004.Google_Capstone_Project.performance_by_personality
+GROUP BY Personality_Type
+ORDER BY Average_Productivity_Level
+
+-- Classifying Personality Types by Productivity Scores
+
+SELECT Type AS Personality_Type, ROUND(AVG(Output_Score), 2) AS Average_Productivity_Level,
+CASE WHEN 
+  ROUND(AVG(Output_Score), 2) > 6 THEN "Personality Type: Beneficial"
+ELSE
+  "Personality Type Not Preferable"
+END AS Personality_Verdict
+FROM aerial-prism-392004.Google_Capstone_Project.performance_by_personality
+GROUP BY Personality_Type;
+
+-- Now, Removing Unwanted Columns from the Dataset
+
+ALTER TABLE aerial-prism-392004.Google_Capstone_Project.performance_by_personality
+DROP COLUMN BAM_Frequency_
+
+ALTER TABLE aerial-prism-392004.Google_Capstone_Project.performance_by_personality
+DROP COLUMN BAM_Ratio
+
+ALTER TABLE aerial-prism-392004.Google_Capstone_Project.performance_by_personality
+DROP COLUMN Total_Rank
+
+ALTER TABLE aerial-prism-392004.Google_Capstone_Project.performance_by_personality
+DROP COLUMN BI_Frequency_;
+
+ALTER TABLE aerial-prism-392004.Google_Capstone_Project.performance_by_personality
+DROP COLUMN BI_Ratio;
+
+ALTER TABLE aerial-prism-392004.Google_Capstone_Project.performance_by_personality
+DROP COLUMN BI_Rank;
+
+ALTER TABLE aerial-prism-392004.Google_Capstone_Project.performance_by_personality
+DROP COLUMN BAM_Rank_
+
+ALTER TABLE aerial-prism-392004.Google_Capstone_Project.performance_by_personality
+DROP COLUMN Total_Frequency_
+
+-- Checking the Table After All That Cleaning
+
+SELECT *
+FROM aerial-prism-392004.Google_Capstone_Project.performance_by_personality
+
+-- In Order of Increasing Age: Every Personality Type in People of Every Age and its Corresponding Productivity Score
+
+SELECT Age, Type, Output_Score AS Productivity
+FROM aerial-prism-392004.Google_Capstone_Project.performance_by_personality
+GROUP BY Age, Type, Productivity
+ORDER BY Age
+
+-- Ranking all Personality Types' Overall Productivity Levels from Lowest to Highest
+
+SELECT Type, ROUND(AVG(Output_Score), 2) AS Average_Productivity_Score
+FROM aerial-prism-392004.Google_Capstone_Project.performance_by_personality
+GROUP BY Type
+ORDER BY Average_Productivity_Score
+
+-- The Personality Types with Productivity Scores below 5; Let's Weed Them Out
+
+DELETE FROM aerial-prism-392004.Google_Capstone_Project.performance_by_personality
+WHERE Output_Score < 6.00
+
+-- Let's Customize this Dataset by Adding Our Own Column with Values, And Play with it More!
+
+INSERT INTO aerial-prism-392004.Google_Capstone_Project.performance_by_personality (Happiness_Level)
+VALUES (8.22), (7.30)
+
+SELECT FLOOR(RAND() * (100 - 1 + 1) + 1) AS Happiness_Score -- FLOOR ensures the result is an integer, "RAND()" generates a random decimal between 0 (inclusive) and 1 (exclusive) | (max_value - min_value + 1) + min_value; (100 - 1 +1) + 1 AS *new_column name*
+FROM aerial-prism-392004.Google_Capstone_Project.performance_by_personality
+LIMIT 36; -- For a Maximum of 36 Rows
+
+-- Actually, this would be Optimal
+
+INSERT INTO aerial-prism-392004.Google_Capstone_Project.performance_by_personality (Happiness_Score)
+SELECT FLOOR(RAND() * (100 - 1 + 1) + 1) AS Happiness_Score 
+FROM aerial-prism-392004.Google_Capstone_Project.performance_by_personality
+LIMIT 36; -- This all automatically randomly generated 36 rows of values in the range specified and places them under the new "Happiness_Score" column which is Also Inserted into the Original Dataset
