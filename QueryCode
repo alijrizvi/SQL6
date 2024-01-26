@@ -94,7 +94,9 @@ WHERE Output_Score < 6.00
 INSERT INTO aerial-prism-392004.Google_Capstone_Project.performance_by_personality (Happiness_Level)
 VALUES (8.22), (7.30)
 
-SELECT FLOOR(RAND() * (100 - 1 + 1) + 1) AS Happiness_Score -- FLOOR ensures the result is an integer, "RAND()" generates a random decimal between 0 (inclusive) and 1 (exclusive) | (max_value - min_value + 1) + min_value; (100 - 1 +1) + 1 AS *new_column name*
+SELECT FLOOR(RAND() * (100 - 1 + 1) + 1) AS Happiness_Score -- FLOOR ensures the result is an integer, "RAND()" generates a random decimal between 0 (inclusive) and 1 (exclusive) | [max_value (inclusive) - min_value] (+ FLOOR's "+ 1" at the end)
+-- ^So, "RAND()" is multiplied with the range "(100 - 1 + 1)" to scale the random value to fit within the desired range & "FLOOR(... + 1)" is added at the end to ensure that the result is at least 1. FLOOR also rounds down the result to the nearest integer.
+-- ^ This will all produce 36 random Integer values between 0 and 100
 FROM aerial-prism-392004.Google_Capstone_Project.performance_by_personality
 LIMIT 36; -- For a Maximum of 36 Rows
 
@@ -104,3 +106,27 @@ INSERT INTO aerial-prism-392004.Google_Capstone_Project.performance_by_personali
 SELECT FLOOR(RAND() * (100 - 1 + 1) + 1) AS Happiness_Score 
 FROM aerial-prism-392004.Google_Capstone_Project.performance_by_personality
 LIMIT 36; -- This all automatically randomly generated 36 rows of values in the range specified and places them under the new "Happiness_Score" column which is Also Inserted into the Original Dataset
+
+
+
+SELECT ROUND(RAND() * (12), 2) AS Happiness_Score -- FLOOR ensures the result is an integer, "RAND()" generates a random decimal between 0 (inclusive) and 1 (exclusive) | [max_value (inclusive) - min_value + 1] + min_value; (100 - 1 +1) + 1 AS *new_column name* 
+-- ^So, "RAND()" is multiplied with the range "(100 - 1 + 1)" to scale the random value to fit within the desired range & "FLOOR(... + 1)" is added at the end to ensure that the result is at least 1. FLOOR also rounds down the result to the nearest integer.
+FROM aerial-prism-392004.Google_Capstone_Project.performance_by_personality
+LIMIT 36; -- For a Maximum of 36 Rows
+
+-- Creating a Pivot Table to display Average Output Scores (excluding NULLs) by Age for the "ENFJ" Personality Type
+
+WITH RoundedPivot AS (
+  SELECT
+    Age,
+    Type,
+    ROUND(AVG(Output_Score), 2) AS RoundedOutput
+  FROM aerial-prism-392004.Google_Capstone_Project.performance_by_personality
+  GROUP BY Age, Type
+)
+SELECT *
+FROM RoundedPivot
+PIVOT (
+  MAX(RoundedOutput) FOR Type IN ('ENFJ') -- The Pivot values inside the "IN" specifier must be directly classified as individual literals, not arrays (i.e., not with "[]"s)
+) AS PivotScores_byType
+WHERE ENFJ IS NOT NULL
